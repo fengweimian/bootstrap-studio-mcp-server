@@ -13,16 +13,18 @@ import { registerProjectTools } from "./tools/project.js";
 import { registerSearchTools } from "./tools/search.js";
 import { registerGenerateTools } from "./tools/generate.js";
 import { registerDocsTools } from "./tools/docs.js";
+import { registerEditTools } from "./tools/edit.js";
 
 const server = new McpServer({
   name: "bsdesign-mcp-server",
-  version: "1.0.0",
+  version: "1.1.0",
 });
 
 registerProjectTools(server);
 registerSearchTools(server);
 registerGenerateTools(server);
 registerDocsTools(server);
+registerEditTools(server);
 
 async function main() {
   const transport = new StdioServerTransport();

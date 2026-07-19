@@ -1,6 +1,7 @@
-import { readFile } from 'node:fs/promises';
-import { gunzipSync } from 'node:zlib';
+import { readFile, writeFile } from 'node:fs/promises';
+import { gunzipSync, gzipSync } from 'node:zlib';
 import { BsDesignFile } from '../types.js';
+import { readFileSync } from 'node:fs';
 
 export async function parseBsDesign(filePath: string): Promise<BsDesignFile> {
   const raw = await readFile(filePath);
@@ -14,9 +15,14 @@ export async function parseBsDesign(filePath: string): Promise<BsDesignFile> {
   return JSON.parse(raw.toString('utf-8')) as BsDesignFile;
 }
 
+export async function saveBsDesign(filePath: string, data: BsDesignFile): Promise<void> {
+  const json = JSON.stringify({version: data.version, timestamp: Date.now(), design: data.design});
+  const compressed = gzipSync(json);
+  await writeFile(filePath, compressed);
+}
+
 export function parseBsDesignSync(filePath: string): BsDesignFile {
-  const fs = require('node:fs');
-  const raw = fs.readFileSync(filePath);
+  const raw = readFileSync(filePath);
 
   const magic = raw.readUInt16BE(0);
   if (magic === 0x1f8b) {
