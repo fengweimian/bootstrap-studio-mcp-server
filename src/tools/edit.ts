@@ -9,10 +9,41 @@ import {
   setComponentLabel,
   setComponentCssClass,
   createComponent,
-  ComponentSkeleton,
   navigateToComponent,
 } from "../services/writer.js";
-import { BsDesignFile } from "../types.js";
+import { BsDesignFile, CssBlock, CssRule } from "../types.js";
+
+function parseCssToBlocks(css: string): CssBlock[] {
+  const blocks: CssBlock[] = [];
+  const re = /([^{]+)\{([^}]+)\}/g;
+  let match;
+  while ((match = re.exec(css)) !== null) {
+    const selector = match[1].trim();
+    const body = match[2].trim();
+    const rules: CssRule[] = [];
+    const ruleLines = body.split(';');
+    for (const line of ruleLines) {
+      const colonIdx = line.indexOf(':');
+      if (colonIdx === -1) continue;
+      const prop = line.substring(0, colonIdx).trim();
+      const val = line.substring(colonIdx + 1).trim();
+      if (prop && val) {
+        rules.push({ property: prop, value: val, enabled: true, system: false });
+      }
+    }
+    if (rules.length > 0) {
+      blocks.push({
+        selector,
+        mediaQuery: false,
+        containerQuery: false,
+        system: false,
+        enabled: true,
+        rules,
+      });
+    }
+  }
+  return blocks;
+}
 
 export function registerEditTools(server: McpServer) {
 
@@ -294,12 +325,24 @@ Returns:
             pageBlacklist: [],
             pageWhitelist: [],
             blocks: [],
-            content: css_code,
           };
           cssFiles.push(target);
           data.design.assets.css.children = cssFiles;
+        }
+
+        if (!target.blocks) (target.blocks as CssBlock[]) = [];
+        const cssBlocks = target.blocks as CssBlock[];
+
+        const newBlocks = parseCssToBlocks(css_code);
+
+        if (block_index !== undefined) {
+          if (block_index < cssBlocks.length) {
+            cssBlocks[block_index] = newBlocks[0] || cssBlocks[block_index];
+          } else {
+            cssBlocks.push(...newBlocks);
+          }
         } else {
-          target.content = (target.content || '') + '\n' + css_code;
+          cssBlocks.push(...newBlocks);
         }
 
         await saveBsDesign(file_path, data);
@@ -307,7 +350,7 @@ Returns:
         return {
           content: [{
             type: "text",
-            text: `Updated CSS in "${file_name}" (CSS appended to content field).`
+            text: `Updated CSS in "${file_name}" (${block_index !== undefined ? `block ${block_index} replaced` : `${newBlocks.length} block(s) appended`}).`
           }],
         };
       } catch (error) {

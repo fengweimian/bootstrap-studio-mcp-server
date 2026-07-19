@@ -3,7 +3,7 @@ import { z } from "zod";
 import { parseBsDesign } from "../services/parser.js";
 import { searchComponents, getAllTextContent, walkComponentTree } from "../services/tree-walker.js";
 import { CHARACTER_LIMIT } from "../constants.js";
-import { BsDesignFile } from "../types.js";
+import { BsDesignFile, CssBlock } from "../types.js";
 
 export function registerSearchTools(server: McpServer) {
 
@@ -144,28 +144,23 @@ Returns:
           if (file.pageBlacklist.length) text.push(`- **Excluded from**: ${file.pageBlacklist.join(', ')}`);
           if (file.pageWhitelist.length) text.push(`- **Applied to**: ${file.pageWhitelist.join(', ')}`);
 
-          if (file.content) {
+          if (file.blocks && file.blocks.length > 0) {
             text.push(``);
             text.push('```css');
-            text.push(file.content.substring(0, 3000));
-            if (file.content.length > 3000) text.push('... (truncated)');
-            text.push('```');
-          }
-
-          const rawBlocks = file.blocks as Array<{ value?: string; content?: string }>;
-          if (rawBlocks && rawBlocks.length > 0) {
-            text.push(`- **Blocks**: ${rawBlocks.length}`);
-            for (let i = 0; i < rawBlocks.length; i++) {
-              const blockContent = rawBlocks[i].value || rawBlocks[i].content || '';
-              if (blockContent) {
-                text.push(``);
-                text.push(`### Block ${i + 1}`);
-                text.push('```css');
-                text.push(blockContent.substring(0, 2000));
-                if (blockContent.length > 2000) text.push('... (truncated)');
-                text.push('```');
+            for (const block of file.blocks as CssBlock[]) {
+              if (!block.enabled) continue;
+              const rules = block.rules
+                .filter(r => r.enabled)
+                .map(r => `  ${r.property}: ${r.value};`)
+                .join('\n');
+              if (rules) {
+                text.push(`${block.selector} {`);
+                text.push(rules);
+                text.push(`}`);
+                text.push('');
               }
             }
+            text.push('```');
           }
           text.push(``);
         }

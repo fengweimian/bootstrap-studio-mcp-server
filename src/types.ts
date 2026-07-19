@@ -57,6 +57,22 @@ export interface BsFolderNode {
   children: BsPage[];
 }
 
+export interface CssBlock {
+  selector: string;
+  mediaQuery: boolean | string;
+  containerQuery: boolean | string;
+  system: boolean;
+  enabled: boolean;
+  rules: CssRule[];
+}
+
+export interface CssRule {
+  property: string;
+  value: string;
+  enabled: boolean;
+  system: boolean;
+}
+
 export interface BsAssetFile {
   name: string;
   properties: Record<string, unknown>;
@@ -64,7 +80,6 @@ export interface BsAssetFile {
   pageBlacklist: string[];
   pageWhitelist: string[];
   blocks: unknown[];
-  content?: string;
   children?: BsAssetFile[];
 }
 
