@@ -144,6 +144,14 @@ Returns:
           if (file.pageBlacklist.length) text.push(`- **Excluded from**: ${file.pageBlacklist.join(', ')}`);
           if (file.pageWhitelist.length) text.push(`- **Applied to**: ${file.pageWhitelist.join(', ')}`);
 
+          if (file.content) {
+            text.push(``);
+            text.push('```css');
+            text.push(file.content.substring(0, 3000));
+            if (file.content.length > 3000) text.push('... (truncated)');
+            text.push('```');
+          }
+
           const rawBlocks = file.blocks as Array<{ value?: string; content?: string }>;
           if (rawBlocks && rawBlocks.length > 0) {
             text.push(`- **Blocks**: ${rawBlocks.length}`);

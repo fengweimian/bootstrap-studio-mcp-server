@@ -64,6 +64,7 @@ export interface BsAssetFile {
   pageBlacklist: string[];
   pageWhitelist: string[];
   blocks: unknown[];
+  content?: string;
   children?: BsAssetFile[];
 }
 

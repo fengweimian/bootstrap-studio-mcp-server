@@ -294,21 +294,12 @@ Returns:
             pageBlacklist: [],
             pageWhitelist: [],
             blocks: [],
+            content: css_code,
           };
           cssFiles.push(target);
           data.design.assets.css.children = cssFiles;
-        }
-
-        if (block_index !== undefined) {
-          if (!target.blocks) target.blocks = [];
-          if (block_index >= target.blocks.length) {
-            target.blocks.push({ value: css_code });
-          } else {
-            (target.blocks[block_index] as { value: string }).value = css_code;
-          }
         } else {
-          if (!target.blocks) target.blocks = [];
-          target.blocks.push({ value: css_code });
+          target.content = (target.content || '') + '\n' + css_code;
         }
 
         await saveBsDesign(file_path, data);
@@ -316,7 +307,7 @@ Returns:
         return {
           content: [{
             type: "text",
-            text: `Updated CSS in "${file_name}" (${block_index !== undefined ? `block ${block_index} replaced` : 'appended new block'}).`
+            text: `Updated CSS in "${file_name}" (CSS appended to content field).`
           }],
         };
       } catch (error) {
