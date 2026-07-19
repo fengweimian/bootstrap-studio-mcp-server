@@ -6,8 +6,12 @@ function isComponent(child: BsComponent | string): child is BsComponent {
 
 function getTextContent(component: BsComponent): string {
   const texts: string[] = [];
-  for (const child of component.children || []) {
+  const children = component.children || [];
+  for (let i = 0; i < children.length; i++) {
+    const child = children[i];
     if (typeof child === 'string') {
+      const prev = children[i - 1];
+      if (prev && typeof prev !== 'string' && prev.class === 'InlineCharacter' && prev.children && prev.children.length > 0) continue;
       const trimmed = child.trim();
       if (trimmed) texts.push(trimmed);
     } else if (child.class === 'InlineCharacter' && child.children && child.children.length > 0) {
@@ -119,8 +123,12 @@ export function getAllTextContent(rootComponent: BsComponent): string {
   const texts: string[] = [];
 
   function walk(component: BsComponent) {
-    for (const child of component.children || []) {
+    const children = component.children || [];
+    for (let i = 0; i < children.length; i++) {
+      const child = children[i];
       if (typeof child === 'string') {
+        const prev = children[i - 1];
+        if (prev && typeof prev !== 'string' && prev.class === 'InlineCharacter' && prev.children && prev.children.length > 0) continue;
         const trimmed = child.trim();
         if (trimmed) texts.push(trimmed);
       } else if (child.class === 'InlineCharacter' && child.children && child.children.length > 0) {

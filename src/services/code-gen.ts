@@ -266,6 +266,54 @@ const componentTemplates: Record<string, (props: string) => string> = {
     </div>
   </div>
 </div>`,
+  testimonial: () => `<div class="card border-0 bg-body-tertiary p-4 text-center">
+  <div class="card-body">
+    <img src="https://placehold.co/80x80" class="rounded-circle mb-3" width="80" height="80" alt="Avatar">
+    <p class="card-text fst-italic">"This product transformed our workflow. The results exceeded all expectations."</p>
+    <h6 class="fw-bold mb-1">Sarah Chen</h6>
+    <small class="text-muted">CTO, TechCorp</small>
+  </div>
+</div>`,
+
+  timeline: () => `<ul class="list-unstyled position-relative ps-4">
+  <li class="mb-4 position-relative">
+    <div class="position-absolute start-0 translate-middle-x bg-primary rounded-circle" style="width:12px;height:12px;top:8px;"></div>
+    <h6 class="fw-bold mb-1">2024 Q1</h6>
+    <p class="text-muted mb-0">Product launch and initial customer onboarding.</p>
+  </li>
+  <li class="mb-4 position-relative">
+    <div class="position-absolute start-0 translate-middle-x bg-primary rounded-circle" style="width:12px;height:12px;top:8px;"></div>
+    <h6 class="fw-bold mb-1">2024 Q2</h6>
+    <p class="text-muted mb-0">Reached 10,000 active users across 30 countries.</p>
+  </li>
+  <li class="mb-4 position-relative">
+    <div class="position-absolute start-0 translate-middle-x bg-primary rounded-circle" style="width:12px;height:12px;top:8px;"></div>
+    <h6 class="fw-bold mb-1">2024 Q3</h6>
+    <p class="text-muted mb-0">Series A funding of $25M secured.</p>
+  </li>
+</ul>`,
+
+  faq: () => `<div class="accordion" id="faqAccordion">
+  <div class="accordion-item">
+    <h2 class="accordion-header"><button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#faq1">What is your refund policy?</button></h2>
+    <div id="faq1" class="accordion-collapse collapse show" data-bs-parent="#faqAccordion"><div class="accordion-body">We offer a 30-day money-back guarantee on all plans.</div></div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq2">How do I cancel my subscription?</button></h2>
+    <div id="faq2" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">You can cancel anytime from your account settings page.</div></div>
+  </div>
+  <div class="accordion-item">
+    <h2 class="accordion-header"><button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#faq3">Is there a free trial?</button></h2>
+    <div id="faq3" class="accordion-collapse collapse" data-bs-parent="#faqAccordion"><div class="accordion-body">Yes, all plans include a 14-day free trial with no credit card required.</div></div>
+  </div>
+</div>`,
+
+  stats: () => `<div class="row g-4 text-center">
+  <div class="col-6 col-md-3"><div class="p-4 rounded-3 bg-body-tertiary"><div class="display-5 fw-bold text-primary">99.9%</div><small class="text-muted text-uppercase">Uptime</small></div></div>
+  <div class="col-6 col-md-3"><div class="p-4 rounded-3 bg-body-tertiary"><div class="display-5 fw-bold text-primary">50K+</div><small class="text-muted text-uppercase">Users</small></div></div>
+  <div class="col-6 col-md-3"><div class="p-4 rounded-3 bg-body-tertiary"><div class="display-5 fw-bold text-primary">120+</div><small class="text-muted text-uppercase">Countries</small></div></div>
+  <div class="col-6 col-md-3"><div class="p-4 rounded-3 bg-body-tertiary"><div class="display-5 fw-bold text-primary">4.9</div><small class="text-muted text-uppercase">Rating</small></div></div>
+</div>`,
 };
 
 const layoutTemplates: Record<string, string> = {

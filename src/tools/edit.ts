@@ -1,4 +1,5 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
+import { resolve } from "node:path";
 import { z } from "zod";
 import { parseBsDesign, saveBsDesign } from "../services/parser.js";
 import {
@@ -435,6 +436,144 @@ Returns:
           content: [{
             type: "text",
             text: `Error setting JS: ${error instanceof Error ? error.message : String(error)}`
+          }],
+        };
+      }
+    }
+  );
+
+  server.registerTool(
+    "bs_launch_preview",
+    {
+      title: "Launch Live Preview Server",
+      description: `Start the BSDesign Live Preview server for a .bsdesign file. Opens a browser tab at http://localhost:4400 with real-time preview that auto-refreshes on file changes.
+
+Requires bsdesign-live-preview to be installed (https://github.com/fengweimian/bsdesign-live-preview).
+
+Args:
+  - file_path (string): Absolute path to the .bsdesign file to preview
+
+Returns:
+  Server status and URL.`,
+      inputSchema: z.object({
+        file_path: z.string().describe("Absolute path to the .bsdesign file"),
+      }).strict(),
+      annotations: {
+        readOnlyHint: true,
+        destructiveHint: false,
+        idempotentHint: true,
+        openWorldHint: true,
+      },
+    },
+    async ({ file_path }) => {
+      try {
+        // Try common locations for bsdesign-live-preview
+        const { existsSync } = await import('node:fs');
+        const candidates = [
+          resolve('C:/Users/nimo/Desktop/bsdesign-live-preview/dist/index.js'),
+          resolve(process.cwd(), '../bsdesign-live-preview/dist/index.js'),
+          resolve(process.cwd(), '../../bsdesign-live-preview/dist/index.js'),
+        ];
+        let previewPath = '';
+        for (const p of candidates) {
+          if (existsSync(p)) { previewPath = p; break; }
+        }
+        if (!previewPath) {
+          return { content: [{ type: "text", text: 'bsdesign-live-preview not found. Install from: https://github.com/fengweimian/bsdesign-live-preview' }] };
+        }
+        const { spawn } = await import('node:child_process');
+        const proc = spawn('node', [previewPath, file_path], {
+          detached: true,
+          stdio: 'ignore',
+          windowsHide: false,
+        });
+        proc.unref();
+        return {
+          content: [{
+            type: "text",
+            text: `Live preview launching...\nOpen http://localhost:4400\nFile changes will auto-reload.`
+          }],
+        };
+      } catch (error) {
+        return { content: [{ type: "text", text: `Failed: ${error instanceof Error ? error.message : String(error)}` }] };
+      }
+    }
+  );
+
+  server.registerTool(
+    "bs_batch_update",
+    {
+      title: "Batch Update Components",
+      description: `Update multiple components in a single operation. More efficient than calling bs_update_component multiple times.
+
+Args:
+  - file_path (string): Absolute path to the .bsdesign file
+  - page_name (string): Name of the page
+  - updates (array): List of updates, each with component_path, text, css_class, label, and/or properties
+
+Returns:
+  Summary of all changes applied.`,
+      inputSchema: z.object({
+        file_path: z.string().describe("Absolute path to the .bsdesign file"),
+        page_name: z.string().describe("Page name (e.g. 'index.html')"),
+        updates: z.array(z.object({
+          component_path: z.string().describe("Path to component"),
+          text: z.string().optional().describe("New text content"),
+          css_class: z.string().optional().describe("New CSS class"),
+          label: z.string().optional().describe("New label"),
+          properties: z.record(z.unknown()).optional().describe("Properties to update"),
+        })).describe("List of component updates"),
+      }).strict(),
+      annotations: {
+        readOnlyHint: false,
+        destructiveHint: true,
+        idempotentHint: false,
+        openWorldHint: true,
+      },
+    },
+    async ({ file_path, page_name, updates }) => {
+      try {
+        const data: BsDesignFile = await parseBsDesign(file_path);
+        const page = data.design.pages.children.find(p => p.name === page_name);
+        if (!page) {
+          return { content: [{ type: "text", text: `Page "${page_name}" not found.` }] };
+        }
+
+        const results: string[] = [];
+        for (const up of updates) {
+          const local: string[] = [];
+          if (up.properties && updateComponentProperties(page.html, up.component_path, up.properties)) {
+            local.push('properties');
+          }
+          if (up.css_class !== undefined && setComponentCssClass(page.html, up.component_path, up.css_class)) {
+            local.push(`class="${up.css_class}"`);
+          }
+          if (up.text !== undefined && setComponentText(page.html, up.component_path, up.text)) {
+            local.push(`text="${up.text.substring(0, 30)}"`);
+          }
+          if (up.label !== undefined && setComponentLabel(page.html, up.component_path, up.label)) {
+            local.push(`label="${up.label}"`);
+          }
+          if (local.length > 0) {
+            results.push(`${up.component_path}: ${local.join(', ')}`);
+          } else {
+            results.push(`${up.component_path}: NOT FOUND`);
+          }
+        }
+
+        await saveBsDesign(file_path, data);
+
+        return {
+          content: [{
+            type: "text",
+            text: `Batch update complete (${results.filter(r => !r.includes('NOT FOUND')).length}/${updates.length} succeeded):\n${results.join('\n')}`
+          }],
+        };
+      } catch (error) {
+        return {
+          content: [{
+            type: "text",
+            text: `Error during batch update: ${error instanceof Error ? error.message : String(error)}`
           }],
         };
       }
