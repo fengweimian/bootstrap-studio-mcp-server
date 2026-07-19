@@ -20,7 +20,7 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that p
 
 | Tool | Description |
 |------|-------------|
-| `bs_generate_component` | Generate Bootstrap 5 component HTML (17 components: navbar, card, form, modal, table, carousel, accordion, alert, badge, breadcrumb, progress, spinner, hero, features, footer, contact-form, pricing) |
+| `bs_generate_component` | Generate Bootstrap 5 component HTML (21 components: navbar, card, form, modal, table, carousel, accordion, alert, badge, breadcrumb, progress, spinner, hero, features, footer, contact-form, pricing, testimonial, timeline, faq, stats) |
 | `bs_generate_layout` | Generate complete page layouts (full-page, dashboard) |
 | `bs_generate_custom_css` | Generate custom CSS with responsive breakpoints |
 | `bs_generate_custom_js` | Generate custom JavaScript (smooth scroll, navbar effects, form validation, tooltips, etc.) |
@@ -32,6 +32,17 @@ An [MCP (Model Context Protocol)](https://modelcontextprotocol.io) server that p
 |------|-------------|
 | `bs_lookup_class` | Look up Bootstrap 5 CSS class documentation |
 | `bs_search_component` | Search Bootstrap 5 component reference with code examples |
+
+### Project Editing (6 tools)
+
+| Tool | Description |
+|------|-------------|
+| `bs_update_component` | Update component properties, CSS classes, text, or label |
+| `bs_add_component` | Add a new component at a specified position in the tree |
+| `bs_remove_component` | Remove a component from a page by its path |
+| `bs_set_css_code` | Write custom CSS using Bootstrap Studio's native structured block format |
+| `bs_set_js_code` | Write custom JavaScript code |
+| `bs_batch_update` | Update multiple components in a single request (single file write) |
 
 ## Installation
 
@@ -86,7 +97,7 @@ Add to your MCP client configuration (e.g., `opencode.json`):
 
 | 工具 | 说明 |
 |------|------|
-| `bs_generate_component` | 生成 Bootstrap 5 组件 HTML（17 种组件：导航栏、卡片、表单、模态框、表格、轮播、折叠面板、提示框、徽章、面包屑、进度条、加载动画、英雄区、特性区、页脚、联系表单、定价表） |
+| `bs_generate_component` | 生成 Bootstrap 5 组件 HTML（21 种组件：导航栏、卡片、表单、模态框、表格、轮播、折叠面板、提示框、徽章、面包屑、进度条、加载动画、英雄区、特性区、页脚、联系表单、定价表、用户评价、时间线、常见问题、数据统计） |
 | `bs_generate_layout` | 生成完整页面布局（全页面、仪表盘） |
 | `bs_generate_custom_css` | 生成包含响应式断点的自定义 CSS |
 | `bs_generate_custom_js` | 生成自定义 JavaScript（平滑滚动、导航栏效果、表单验证、提示框等） |
@@ -98,6 +109,17 @@ Add to your MCP client configuration (e.g., `opencode.json`):
 |------|------|
 | `bs_lookup_class` | 查询 Bootstrap 5 CSS 类名文档 |
 | `bs_search_component` | 搜索 Bootstrap 5 组件参考和代码示例 |
+
+### 项目编辑（6 个工具）
+
+| 工具 | 说明 |
+|------|------|
+| `bs_update_component` | 修改组件属性、CSS 类、文本或标签 |
+| `bs_add_component` | 在指定位置添加新组件 |
+| `bs_remove_component` | 按路径删除组件 |
+| `bs_set_css_code` | 写入自定义 CSS（Bootstrap Studio 原生结构化格式） |
+| `bs_set_js_code` | 写入自定义 JavaScript 代码 |
+| `bs_batch_update` | 批量修改多个组件（一次文件写入） |
 
 ## 安装
 
