@@ -1,5 +1,4 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
-import { resolve } from "node:path";
 import { z } from "zod";
 import { parseBsDesign, saveBsDesign } from "../services/parser.js";
 import {
@@ -448,7 +447,7 @@ Returns:
       title: "Launch Live Preview Server",
       description: `Start the BSDesign Live Preview server for a .bsdesign file. Opens a browser tab at http://localhost:4400 with real-time preview that auto-refreshes on file changes.
 
-Requires bsdesign-live-preview to be installed (https://github.com/fengweimian/bsdesign-live-preview).
+On first use, automatically clones and builds bsdesign-live-preview from GitHub into ~/.bsdesign-preview/. Subsequent launches are instant.
 
 Args:
   - file_path (string): Absolute path to the .bsdesign file to preview
@@ -467,31 +466,39 @@ Returns:
     },
     async ({ file_path }) => {
       try {
-        // Try common locations for bsdesign-live-preview
-        const { existsSync } = await import('node:fs');
-        const candidates = [
-          resolve('C:/Users/nimo/Desktop/bsdesign-live-preview/dist/index.js'),
-          resolve(process.cwd(), '../bsdesign-live-preview/dist/index.js'),
-          resolve(process.cwd(), '../../bsdesign-live-preview/dist/index.js'),
-        ];
-        let previewPath = '';
-        for (const p of candidates) {
-          if (existsSync(p)) { previewPath = p; break; }
+        const { existsSync, mkdirSync } = await import('node:fs');
+        const { homedir } = await import('node:os');
+        const { spawn, execSync } = await import('node:child_process');
+        const { join } = await import('node:path');
+
+        const installDir = join(homedir(), '.bsdesign-preview');
+        const serverPath = join(installDir, 'dist', 'index.js');
+
+        if (!existsSync(join(installDir, 'package.json'))) {
+          mkdirSync(installDir, { recursive: true });
+          execSync(`git clone https://github.com/fengweimian/bsdesign-live-preview.git "${installDir}"`, { stdio: 'pipe', timeout: 30000 });
         }
-        if (!previewPath) {
-          return { content: [{ type: "text", text: 'bsdesign-live-preview not found. Install from: https://github.com/fengweimian/bsdesign-live-preview' }] };
+
+        if (!existsSync(join(installDir, 'node_modules'))) {
+          execSync('npm install', { cwd: installDir, stdio: 'pipe', timeout: 60000 });
         }
-        const { spawn } = await import('node:child_process');
-        const proc = spawn('node', [previewPath, file_path], {
+
+        if (!existsSync(serverPath)) {
+          execSync('npm run build', { cwd: installDir, stdio: 'pipe', timeout: 30000 });
+        }
+
+        const proc = spawn('node', [serverPath, file_path], {
           detached: true,
           stdio: 'ignore',
+          cwd: installDir,
           windowsHide: false,
         });
         proc.unref();
+
         return {
           content: [{
             type: "text",
-            text: `Live preview launching...\nOpen http://localhost:4400\nFile changes will auto-reload.`
+            text: `Preview server launched.\nhttp://localhost:4400\nAuto-refreshes on file changes.`
           }],
         };
       } catch (error) {
