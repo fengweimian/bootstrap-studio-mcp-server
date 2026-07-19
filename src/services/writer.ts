@@ -116,14 +116,30 @@ export function setComponentText(root: BsComponent, path: string, text: string):
   if (!result) return false;
 
   const children = result.component.children || [];
-  const textChildren = children.filter(c => typeof c === 'string');
   const componentChildren = children.filter(c => isComponent(c));
+  const inlineChar = componentChildren.find(c => c.class === 'InlineCharacter') as BsComponent | undefined;
 
-  if (componentChildren.length === 1 && componentChildren[0].class === 'InlineCharacter') {
-    componentChildren[0].children = [text];
-    result.component.children = [componentChildren[0], text];
+  if (inlineChar) {
+    inlineChar.children = [text];
+    result.component.children = [inlineChar, text];
   } else {
-    result.component.children = [text];
+    const newInline: BsComponent = {
+      class: 'InlineCharacter',
+      label: '',
+      cssClasses: { system: { customPropClasses: '' }, parent: '' },
+      overrides: {},
+      flags: {
+        canBeMoved: true, canBeDeleted: true, canBeDuplicated: true,
+        canBeEdited: true, canBePackaged: true, canBeCopied: true,
+      },
+      properties: {},
+      customProperties: [],
+      masked: false,
+      unlinkedArea: false,
+      comment: null,
+      children: [text],
+    };
+    result.component.children = [newInline, text];
   }
   return true;
 }
@@ -180,6 +196,20 @@ export function createComponent(skeleton: ComponentSkeleton): BsComponent {
   }
 
   if (skeleton.text) {
+    const inlineChar: BsComponent = {
+      class: 'InlineCharacter',
+      label: '',
+      cssClasses: { system: { customPropClasses: '' }, parent: '' },
+      overrides: {},
+      flags: { canBeMoved: true, canBeDeleted: true, canBeDuplicated: true, canBeEdited: true, canBePackaged: true, canBeCopied: true },
+      properties: {},
+      customProperties: [],
+      masked: false,
+      unlinkedArea: false,
+      comment: null,
+      children: [skeleton.text],
+    };
+    compChildren.push(inlineChar);
     compChildren.push(skeleton.text);
   }
 
